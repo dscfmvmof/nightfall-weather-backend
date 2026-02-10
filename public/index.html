@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGHTFALL | Weather Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="bg-layer"></div>
+    <div class="particles" id="particles"></div>
+
+    <div id="toast" class="toast hidden">Message here</div>
+
+    <section id="login-view" class="full-screen-view active-view">
+        <div class="auth-container glass-panel fade-in-up">
+            <h1 class="logo">NIGHTFALL<span class="dot">.</span></h1>
+            <p class="subtitle">Secure Weather Intelligence</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-pass" placeholder="Password" required>
+                </div>
+                <button type="submit" class="neon-btn">ENTER SYSTEM</button>
+            </form>
+            
+            <p class="switch-text">New user? <a href="#" onclick="switchView('register-view')">Initialize Access</a></p>
+        </div>
+    </section>
+
+    <section id="register-view" class="full-screen-view hidden-view">
+        <div class="auth-container glass-panel fade-in-up">
+            <h1 class="logo">NIGHTFALL<span class="dot">.</span></h1>
+            <p class="subtitle">Create New Identity</p>
+            
+            <form id="register-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="reg-user" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="reg-pass" placeholder="Password" required>
+                </div>
+                <button type="submit" class="neon-btn">REGISTER IDENTITY</button>
+            </form>
+            
+            <p class="switch-text">Already verified? <a href="#" onclick="switchView('login-view')">Login</a></p>
+        </div>
+    </section>
+
+    <section id="dashboard-view" class="full-screen-view hidden-view">
+        <nav class="glass-nav">
+            <div class="nav-logo">NIGHTFALL<span class="dot">.</span></div>
+            <div class="user-controls">
+                <span id="welcome-msg">Cmdr. User</span>
+                <button onclick="logout()" class="logout-btn"><i class="fas fa-power-off"></i></button>
+            </div>
+        </nav>
+
+        <main class="dashboard-grid">
+            <div class="main-widget glass-panel">
+                <div class="search-bar">
+                    <input type="text" id="city-input" placeholder="Search Sector (City)...">
+                    <button onclick="getWeather()"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div id="weather-display" class="weather-content hidden">
+                    <div class="weather-header">
+                        <h2 id="city-name">London, UK</h2>
+                        <button class="fav-btn" onclick="addToFavorites()"><i class="far fa-heart"></i></button>
+                    </div>
+                    
+                    <div class="weather-main">
+                        <div class="temp-display">
+                            <span id="temp-val">00</span><span class="unit">°C</span>
+                        </div>
+                        <div class="weather-icon-box">
+                            <i id="w-icon" class="fas fa-cloud"></i>
+                            <p id="w-desc">Scanning...</p>
+                        </div>
+                    </div>
+
+                    <div class="weather-stats">
+                        <div class="stat">
+                            <i class="fas fa-wind"></i>
+                            <span id="w-wind">0 km/h</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-tint"></i>
+                            <span id="w-humidity">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-widget glass-panel">
+                <h3><i class="fas fa-map-marker-alt"></i> Saved Sectors</h3>
+                <div id="favorites-list" class="fav-list-container">
+                    <p class="empty-msg">No data saved.</p>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script src="app.js"></script>
+</body>
+</html>
