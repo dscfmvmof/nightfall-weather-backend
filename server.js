@@ -5,7 +5,7 @@ const path = require('path');
 const cors = require('cors');
 
 // Import Routes
-const authRoutes = require('./routes/authroutes'); // Lowercase to match your file
+const authRoutes = require('./routes/authroutes'); 
 const userRoutes = require('./routes/userRoutes');
 const weatherRoutes = require('./routes/weatherRoutes');
 

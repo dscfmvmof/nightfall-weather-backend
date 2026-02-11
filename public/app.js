@@ -169,6 +169,46 @@ async function deleteFav(id) {
     loadFavorites();
     showToast('Sector removed.');
 }
+async function updateUserProfile() {
+    const token = localStorage.getItem('token');
+    const newUsername = document.getElementById('edit-username').value;
+    const newEmail = document.getElementById('edit-email').value;
+
+    if (!newUsername || !newEmail) {
+        return showToast('Please fill in both fields.', true);
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/users/profile`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ username: newUsername, email: newEmail })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // Update the local storage so the UI refreshes
+            localStorage.setItem('user', data.username);
+            
+            // Update the welcome message on the screen
+            document.getElementById('welcome-msg').innerText = `User: ${data.username}`;
+            
+            showToast('Identity updated successfully.');
+            
+            // Clear the inputs
+            document.getElementById('edit-username').value = '';
+            document.getElementById('edit-email').value = '';
+        } else {
+            showToast(data.message || 'Update failed', true);
+        }
+    } catch (err) {
+        showToast('Server connection error', true);
+    }
+}
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initApp);

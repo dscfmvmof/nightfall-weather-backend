@@ -68,7 +68,12 @@
                 <button onclick="logout()" class="logout-btn"><i class="fas fa-power-off"></i></button>
             </div>
         </nav>
-
+<div id="edit-profile-section" style="margin-top: 20px; border: 1px solid #4deeea; padding: 15px;">
+    <h3>Edit Tactical Profile</h3>
+    <input type="text" id="edit-username" placeholder="New Username" style="margin-bottom: 10px;">
+    <input type="email" id="edit-email" placeholder="New Email" style="margin-bottom: 10px;">
+    <button onclick="updateUserProfile()" class="action-btn">Update Identity</button>
+</div>
         <main class="dashboard-grid">
             <div class="main-widget glass-panel">
                 <div class="search-bar">
