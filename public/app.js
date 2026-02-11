@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3000/api';
+
+const API_BASE = 'https://nightfall-weather-backend.onrender.com/api';
 
 function switchView(viewId) {
     document.querySelectorAll('.full-screen-view').forEach(el => {
@@ -6,8 +7,10 @@ function switchView(viewId) {
         el.classList.add('hidden-view');
     });
     const target = document.getElementById(viewId);
-    target.classList.remove('hidden-view');
-    target.classList.add('active-view');
+    if (target) {
+        target.classList.remove('hidden-view');
+        target.classList.add('active-view');
+    }
 }
 
 function showToast(msg, isError = false) {
@@ -17,7 +20,6 @@ function showToast(msg, isError = false) {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
-
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -36,11 +38,11 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', data.username);
             initApp();
-            showToast('Welcome back, Commander.');
+            showToast('Authorization successful.');
         } else {
-            showToast(data.message || 'Login failed', true);
+            showToast(data.message || 'Access Denied', true);
         }
-    } catch (err) { showToast('Server connection failed', true); }
+    } catch (err) { showToast('Server offline', true); }
 });
 
 document.getElementById('register-form').addEventListener('submit', async (e) => {
@@ -63,27 +65,28 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
             const data = await res.json();
             showToast(data.message || 'Registration failed', true);
         }
-    } catch (err) { showToast('Server error', true); }
+    } catch (err) { showToast('Connection failed', true); }
 });
 
 function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.clear();
     switchView('login-view');
-    showToast('Logged out successfully.');
+    showToast('Session terminated.');
 }
 
 function initApp() {
     const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
     if (!token) return switchView('login-view');
 
-    document.getElementById('welcome-msg').innerText = `User: ${localStorage.getItem('user')}`;
+    document.getElementById('welcome-msg').innerText = `User: ${user}`;
     switchView('dashboard-view');
     loadFavorites();
 }
 
 async function getWeather() {
-    const city = document.getElementById('city-input').value;
+    const cityInput = document.getElementById('city-input');
+    const city = cityInput.value.trim();
     if (!city) return;
 
     try {
@@ -100,83 +103,25 @@ async function getWeather() {
             document.getElementById('w-wind').innerText = `${data.wind.speed} km/h`;
             document.getElementById('w-humidity').innerText = `${data.main.humidity}%`;
             
-    
             const desc = data.weather[0].description.toLowerCase();
             const icon = document.getElementById('w-icon');
-            icon.className = 'fas'; // reset
+            icon.className = 'fas';
             if(desc.includes('rain')) icon.classList.add('fa-cloud-showers-heavy');
             else if(desc.includes('cloud')) icon.classList.add('fa-cloud');
             else if(desc.includes('snow')) icon.classList.add('fa-snowflake');
             else icon.classList.add('fa-sun');
-
         } else {
-            showToast('City not found in sector database.', true);
+            showToast('Sector not found.', true);
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { showToast('Scan failed', true); }
 }
 
-async function addToFavorites() {
-    const token = localStorage.getItem('token');
-    const cityName = document.getElementById('city-name').innerText.split(',')[0]; // Extract just city name
-
-    const res = await fetch(`${API_BASE}/weather/favorites`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ cityName })
-    });
-
-    if (res.ok) {
-        showToast('Sector saved to database.');
-        loadFavorites();
-    }
-}
-
-async function loadFavorites() {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE}/weather/favorites`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await res.json();
-    
-    const list = document.getElementById('favorites-list');
-    list.innerHTML = '';
-
-    if (data.length === 0) {
-        list.innerHTML = '<p class="empty-msg">No data saved.</p>';
-        return;
-    }
-
-    data.forEach(fav => {
-        const div = document.createElement('div');
-        div.className = 'fav-item';
-        div.innerHTML = `
-            <span>${fav.cityName}</span>
-            <button class="del-btn" onclick="deleteFav('${fav._id}')"><i class="fas fa-trash"></i></button>
-        `;
-        list.appendChild(div);
-    });
-}
-
-async function deleteFav(id) {
-    const token = localStorage.getItem('token');
-    await fetch(`${API_BASE}/weather/favorites/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    loadFavorites();
-    showToast('Sector removed.');
-}
 async function updateUserProfile() {
     const token = localStorage.getItem('token');
     const newUsername = document.getElementById('edit-username').value;
     const newEmail = document.getElementById('edit-email').value;
 
-    if (!newUsername || !newEmail) {
-        return showToast('Please fill in both fields.', true);
-    }
+    if (!newUsername || !newEmail) return showToast('Entries incomplete', true);
 
     try {
         const res = await fetch(`${API_BASE}/users/profile`, {
@@ -187,28 +132,94 @@ async function updateUserProfile() {
             },
             body: JSON.stringify({ username: newUsername, email: newEmail })
         });
-
         const data = await res.json();
 
         if (res.ok) {
-            // Update the local storage so the UI refreshes
             localStorage.setItem('user', data.username);
-            
-            // Update the welcome message on the screen
             document.getElementById('welcome-msg').innerText = `User: ${data.username}`;
-            
-            showToast('Identity updated successfully.');
-            
-            // Clear the inputs
-            document.getElementById('edit-username').value = '';
-            document.getElementById('edit-email').value = '';
+            showToast('Identity updated.');
+            setTimeout(() => switchView('dashboard-view'), 1000);
         } else {
             showToast(data.message || 'Update failed', true);
         }
-    } catch (err) {
-        showToast('Server connection error', true);
-    }
+    } catch (err) { showToast('Server error', true); }
 }
 
-// Initialize on load
+async function addToFavorites() {
+    const token = localStorage.getItem('token');
+    const cityNameText = document.getElementById('city-name').innerText;
+    
+    if (cityNameText === "Sector Unknown" || cityNameText === "Scanning...") {
+        return showToast("Please search a city first", true);
+    }
+
+    const cityName = cityNameText.split(',')[0].trim(); 
+
+    try {
+        const res = await fetch(`${API_BASE}/weather/favorites`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ cityName })
+        });
+
+        if (res.ok) {
+            showToast(`Sector ${cityName} saved.`);
+            loadFavorites();
+        } else {
+            showToast('Save failed', true);
+        }
+    } catch (err) { showToast('Connection error', true); }
+}
+
+async function loadFavorites() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/weather/favorites`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const list = document.getElementById('favorites-list');
+        list.innerHTML = '';
+
+        if (data.length === 0) {
+            list.innerHTML = '<p class="empty-msg">No data saved.</p>';
+            return;
+        }
+        data.forEach(fav => {
+            const div = document.createElement('div');
+            div.className = 'fav-item';
+            div.innerHTML = `
+                <span onclick="quickSearch('${fav.cityName}')" style="cursor:pointer">${fav.cityName}</span>
+                <button class="del-btn" onclick="deleteFav('${fav._id}')"><i class="fas fa-trash"></i></button>
+            `;
+            list.appendChild(div);
+        });
+    } catch (err) { console.error(err); }
+}
+
+async function deleteFav(id) {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_BASE}/weather/favorites/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            showToast('Sector removed.');
+            loadFavorites();
+        }
+    } catch (err) { showToast('Delete failed', true); }
+}
+
+function quickSearch(city) {
+    document.getElementById('city-input').value = city;
+    getWeather();
+}
+
+// Global Initialization
 document.addEventListener('DOMContentLoaded', initApp);

@@ -8,17 +8,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="bg-layer"></div>
-    <div class="particles" id="particles"></div>
-
     <div id="toast" class="toast hidden">Message here</div>
 
     <section id="login-view" class="full-screen-view active-view">
         <div class="auth-container glass-panel fade-in-up">
             <h1 class="logo">NIGHTFALL<span class="dot">.</span></h1>
             <p class="subtitle">Secure Weather Intelligence</p>
-            
             <form id="login-form">
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
@@ -30,7 +26,6 @@
                 </div>
                 <button type="submit" class="neon-btn">ENTER SYSTEM</button>
             </form>
-            
             <p class="switch-text">New user? <a href="#" onclick="switchView('register-view')">Initialize Access</a></p>
         </div>
     </section>
@@ -39,7 +34,6 @@
         <div class="auth-container glass-panel fade-in-up">
             <h1 class="logo">NIGHTFALL<span class="dot">.</span></h1>
             <p class="subtitle">Create New Identity</p>
-            
             <form id="register-form">
                 <div class="input-group">
                     <i class="fas fa-user"></i>
@@ -55,7 +49,6 @@
                 </div>
                 <button type="submit" class="neon-btn">REGISTER IDENTITY</button>
             </form>
-            
             <p class="switch-text">Already verified? <a href="#" onclick="switchView('login-view')">Login</a></p>
         </div>
     </section>
@@ -65,51 +58,35 @@
             <div class="nav-logo">NIGHTFALL<span class="dot">.</span></div>
             <div class="user-controls">
                 <span id="welcome-msg">Cmdr. User</span>
+                <a href="#" onclick="switchView('profile-view')" class="settings-link"><i class="fas fa-cog"></i> Settings</a>
                 <button onclick="logout()" class="logout-btn"><i class="fas fa-power-off"></i></button>
             </div>
         </nav>
-<div id="edit-profile-section" style="margin-top: 20px; border: 1px solid #4deeea; padding: 15px;">
-    <h3>Edit Tactical Profile</h3>
-    <input type="text" id="edit-username" placeholder="New Username" style="margin-bottom: 10px;">
-    <input type="email" id="edit-email" placeholder="New Email" style="margin-bottom: 10px;">
-    <button onclick="updateUserProfile()" class="action-btn">Update Identity</button>
-</div>
+
         <main class="dashboard-grid">
             <div class="main-widget glass-panel">
                 <div class="search-bar">
                     <input type="text" id="city-input" placeholder="Search Sector (City)...">
                     <button onclick="getWeather()"><i class="fas fa-search"></i></button>
                 </div>
-
                 <div id="weather-display" class="weather-content hidden">
                     <div class="weather-header">
-                        <h2 id="city-name">London, UK</h2>
+                        <h2 id="city-name">Sector Unknown</h2>
                         <button class="fav-btn" onclick="addToFavorites()"><i class="far fa-heart"></i></button>
                     </div>
-                    
                     <div class="weather-main">
-                        <div class="temp-display">
-                            <span id="temp-val">00</span><span class="unit">°C</span>
-                        </div>
+                        <div class="temp-display"><span id="temp-val">--</span><span class="unit">°C</span></div>
                         <div class="weather-icon-box">
                             <i id="w-icon" class="fas fa-cloud"></i>
                             <p id="w-desc">Scanning...</p>
                         </div>
                     </div>
-
                     <div class="weather-stats">
-                        <div class="stat">
-                            <i class="fas fa-wind"></i>
-                            <span id="w-wind">0 km/h</span>
-                        </div>
-                        <div class="stat">
-                            <i class="fas fa-tint"></i>
-                            <span id="w-humidity">0%</span>
-                        </div>
+                        <div class="stat"><i class="fas fa-wind"></i><span id="w-wind">0 km/h</span></div>
+                        <div class="stat"><i class="fas fa-tint"></i><span id="w-humidity">0%</span></div>
                     </div>
                 </div>
             </div>
-
             <div class="side-widget glass-panel">
                 <h3><i class="fas fa-map-marker-alt"></i> Saved Sectors</h3>
                 <div id="favorites-list" class="fav-list-container">
@@ -117,6 +94,23 @@
                 </div>
             </div>
         </main>
+    </section>
+
+    <section id="profile-view" class="full-screen-view hidden-view">
+        <div class="glass-panel profile-card fade-in-up">
+            <h2 class="neon-text">Identity Management</h2>
+            <p class="subtitle">Update your sector credentials</p>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="edit-username" placeholder="New Username">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="edit-email" placeholder="New Email">
+            </div>
+            <button onclick="updateUserProfile()" class="neon-btn">COMMIT CHANGES</button>
+            <button onclick="switchView('dashboard-view')" class="ghost-btn">RETURN TO RADAR</button>
+        </div>
     </section>
 
     <script src="app.js"></script>
